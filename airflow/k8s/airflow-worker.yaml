@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-worker
+  namespace: airflow
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: airflow-worker
+  template:
+    metadata:
+      labels:
+        app: airflow-worker
+    spec:
+      containers:
+      - name: worker
+        image: mlopsacrvs5tyf.azurecr.io/airflow:latest
+        command: ["airflow", "celery", "worker"]
+        env:
+          - name: AIRFLOW__CORE__EXECUTOR
+            value: "KubernetesExecutor"
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            valueFrom:
+              secretKeyRef:
+                name: airflow-db-secret
+                key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          - name: DATABRICKS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: airflow-secrets
+                key: databricks_token
+          - name: MLFLOW_URI
+            value: "http://mlflow:5000"
+        volumeMounts:
+          - name: dags
+            mountPath: /opt/airflow/dags
+          - name: logs
+            mountPath: /opt/airflow/logs
+      volumes:
+        - name: dags
+          persistentVolumeClaim:
+            claimName: airflow-dags-pvc
+        - name: logs
+          persistentVolumeClaim:
+            claimName: airflow-logs-pvc

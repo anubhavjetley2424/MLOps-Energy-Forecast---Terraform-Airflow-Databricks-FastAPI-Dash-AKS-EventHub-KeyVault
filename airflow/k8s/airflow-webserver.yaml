@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+  namespace: airflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+    spec:
+      serviceAccountName: airflow-sa
+      containers:
+        - name: webserver
+          image: mlopsacrvs5tyf.azurecr.io/airflow:latest
+          command: ["airflow", "webserver"]
+          env:
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: "KubernetesExecutor"
+            - name: AIRFLOW__KUBERNETES__NAMESPACE
+              value: "airflow"
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-db-secret
+                  key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            - name: AIRFLOW__SECRETS__BACKEND
+              value: "airflow.providers.microsoft.azure.secrets.key_vault.AzureKeyVaultBackend"
+            - name: AIRFLOW__SECRETS__BACKEND_KWARGS
+              value: '{"vault_url": "https://mlops-keyvault-anubh.vault.azure.net/", "credential_type": "managed_identity"}'
+            - name: AIRFLOW__LOGGING__REMOTE_LOGGING
+              value: "true"
+            - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+              value: "azure_default"
+            - name: MLFLOW_URI
+              value: "http://mlflow:5000"
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+            - name: pod-template
+              mountPath: /opt/airflow/pod_template.yaml
+              subPath: pod_template.yaml
+      volumes:
+        - name: dags
+          persistentVolumeClaim:
+            claimName: airflow-dags-pvc
+        - name: logs
+          persistentVolumeClaim:
+            claimName: airflow-logs-pvc
+        - name: pod-template
+          configMap:
+            name: airflow-pod-template
+      imagePullSecrets:
+        - name: acr-secret
