@@ -1,0 +1,14 @@
+
+apache-airflow-providers-openlineage>=1.8.0
+mlflow
+pandas
+pyarrow
+requests
+azure-storage-file-datalake
+azure-storage-blob
+azure-identity
+azure-synapse-artifacts
+adlfs
+cryptography==43.0.3
+psycopg2-binary
+azure-eventhub
