@@ -1,0 +1,23 @@
+artifact_path: dbfs:/databricks/mlflow-tracking/1131043620892991/logged_models/m-a0032a43eb7c4dba8cb75881c5a7b0a1/artifacts
+databricks_runtime: '17.1'
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+mlflow_version: 3.0.1
+model_id: m-a0032a43eb7c4dba8cb75881c5a7b0a1
+model_size_bytes: 1607
+model_uuid: m-a0032a43eb7c4dba8cb75881c5a7b0a1
+prompts: null
+run_id: d43ac8dfec2d4631b0ee449e4f55acf1
+utc_time_created: '2025-09-19 02:44:05.814014'
