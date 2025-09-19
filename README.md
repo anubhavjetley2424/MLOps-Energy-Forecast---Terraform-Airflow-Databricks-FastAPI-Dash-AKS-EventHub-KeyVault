@@ -1,5 +1,10 @@
 # NYC Energy Demand Forecast ML Pipeline - Airflow (Kubernetes, AKS, AZCR, Docker) - ML & API (Databricks, MLFlow, AKS) - Infastructure As Code (Terraform)
 
+# Command Line Interfaces Used:
+ - AZ CLI (Azure)
+ - Terraform CLI
+ - Kubernetes (kubectl)
+   
 # Terraform:
 
 
