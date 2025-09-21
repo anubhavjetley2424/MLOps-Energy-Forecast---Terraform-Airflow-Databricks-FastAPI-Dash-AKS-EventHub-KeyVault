@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: nyis-dashboard
+  TAG: latest
+  ACR_NAME: webappmlops
+  AKS_RESOURCE_GROUP: mlops-rg
+  AKS_CLUSTER_NAME: mlops-aks
+  DEPLOYMENT_NAME: nyis-dashboard
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+    
+      - name: Build Docker image
+        run: bash scripts/build_docker.sh ${{ env.IMAGE_NAME }} ${{ env.TAG }}
+
+      - name: Push to Azure Container Registry
+        run: bash scripts/push_azcr.sh ${{ env.ACR_NAME }} ${{ env.IMAGE_NAME }} ${{ env.TAG }}
+
+      - name: Deploy to AKS
+        run: bash scripts/deploy_aks.sh \
+              ${{ env.AKS_RESOURCE_GROUP }} \
+              ${{ env.AKS_CLUSTER_NAME }} \
+              ${{ env.ACR_NAME }} \
+              ${{ env.DEPLOYMENT_NAME }} \
+              ${{ env.IMAGE_NAME }} \
+              ${{ env.TAG }}
